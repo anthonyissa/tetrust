@@ -1,5 +1,7 @@
-use util::Color;
 use std::io::{self, Write};
+use util::Color;
+
+use crate::util;
 
 const ESC: &'static str = "\x1b";
 
@@ -20,14 +22,16 @@ impl Display {
         for _ in 0..height {
             let mut row = Vec::with_capacity(width as usize);
             for _ in 0..width {
-                row.push(Pixel{ c: ' ', fg_color: Color::Black, bg_color: Color::Black });
+                row.push(Pixel {
+                    c: ' ',
+                    fg_color: Color::Black,
+                    bg_color: Color::Black,
+                });
             }
             rows.push(row);
         }
 
-        Display {
-            buffer: rows
-        }
+        Display { buffer: rows }
     }
 
     pub fn render(&mut self) {
@@ -45,11 +49,11 @@ impl Display {
                 if pixel.fg_color != fg_color {
                     fg_color = pixel.fg_color;
                     self.set_fg_color(pixel.fg_color);
-                 }
+                }
                 if pixel.bg_color != bg_color {
                     bg_color = pixel.bg_color;
                     self.set_bg_color(pixel.bg_color);
-                 }
+                }
 
                 let bytes = [pixel.c as u8];
                 assert!(writer.write_all(&bytes).is_ok());
@@ -61,7 +65,14 @@ impl Display {
         assert!(writer.flush().is_ok());
     }
 
-    pub fn set_text(&mut self, text: &'static str, x: u32, y: u32, fg_color: Color, bg_color: Color) {
+    pub fn set_text(
+        &mut self,
+        text: &'static str,
+        x: u32,
+        y: u32,
+        fg_color: Color,
+        bg_color: Color,
+    ) {
         let row = &mut self.buffer[y as usize];
         let mut i = 0;
 
@@ -95,7 +106,9 @@ impl Display {
         self.print(&self.esc(&format!("{};{}H", y + 1, x + 1)));
     }
 
-    fn esc(&self, text: &str) -> String { format!("{}[{}", ESC, text) }
+    fn esc(&self, text: &str) -> String {
+        format!("{}[{}", ESC, text)
+    }
 
     fn print(&self, text: &str) {
         let mut writer = io::stdout();
@@ -118,7 +131,7 @@ impl Display {
             Color::Red => 9,
             Color::Blue => 21,
             Color::Orange => 202,
-            Color::Black => 0
+            Color::Black => 0,
         }
     }
 }

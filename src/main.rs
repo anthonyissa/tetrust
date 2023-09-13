@@ -1,13 +1,13 @@
 extern crate libc;
 extern crate rand;
 
-mod util;
 mod display;
 mod terminal;
+mod util;
 
 use display::Display;
-use std::thread;
 use std::sync::mpsc;
+use std::thread;
 use std::time::Duration;
 use util::*;
 
@@ -56,8 +56,8 @@ impl Board {
                         let c = 1 + (col * 2);
                         display.set_text(" ", c, row, color, color);
                         display.set_text(" ", c + 1, row, color, color);
-                    },
-                    None => ()
+                    }
+                    None => (),
                 }
             }
         }
@@ -77,9 +77,13 @@ impl Board {
             if !found {
                 let x = origin.x + col;
                 let y = origin.y + row;
-                if x < 0 || x >= (BOARD_WIDTH as i32) || y < 0 || y >= (BOARD_HEIGHT as i32) ||
-                    self.cells[y as usize][x as usize] != None {
-                  found = true;
+                if x < 0
+                    || x >= (BOARD_WIDTH as i32)
+                    || y < 0
+                    || y >= (BOARD_HEIGHT as i32)
+                    || self.cells[y as usize][x as usize] != None
+                {
+                    found = true;
                 }
             }
         });
@@ -119,9 +123,9 @@ struct Piece {
 
 impl Clone for Piece {
     fn clone(&self) -> Piece {
-        let mut p = Piece{
+        let mut p = Piece {
             color: self.color,
-            shape: Vec::with_capacity(self.shape.len())
+            shape: Vec::with_capacity(self.shape.len()),
         };
         for row in &self.shape {
             p.shape.push(row.clone());
@@ -132,86 +136,81 @@ impl Clone for Piece {
 
 impl Piece {
     pub fn new_o() -> Piece {
-        Piece{
+        Piece {
             color: Color::Cyan,
-            shape: vec![vec![1, 1],
-                        vec![1, 1]]
+            shape: vec![vec![1, 1], vec![1, 1]],
         }
     }
 
     pub fn new_l() -> Piece {
-        Piece{
+        Piece {
             color: Color::Orange,
-            shape: vec![vec![0, 0, 1],
-                        vec![1, 1, 1],
-                        vec![0, 0, 0]]
+            shape: vec![vec![0, 0, 1], vec![1, 1, 1], vec![0, 0, 0]],
         }
     }
 
     pub fn new_j() -> Piece {
-        Piece{
+        Piece {
             color: Color::Blue,
-            shape: vec![vec![1, 0, 0],
-                        vec![1, 1, 1],
-                        vec![0, 0, 0]]
+            shape: vec![vec![1, 0, 0], vec![1, 1, 1], vec![0, 0, 0]],
         }
     }
 
     pub fn new_t() -> Piece {
-        Piece{
+        Piece {
             color: Color::Purple,
-            shape: vec![vec![0, 1, 0],
-                        vec![1, 1, 1],
-                        vec![0, 0, 0]]
+            shape: vec![vec![0, 1, 0], vec![1, 1, 1], vec![0, 0, 0]],
         }
     }
 
     pub fn new_s() -> Piece {
-        Piece{
+        Piece {
             color: Color::Green,
-            shape: vec![vec![0, 1, 1],
-                        vec![1, 1, 0],
-                        vec![0, 0, 0]]
+            shape: vec![vec![0, 1, 1], vec![1, 1, 0], vec![0, 0, 0]],
         }
     }
 
     pub fn new_z() -> Piece {
-        Piece{
+        Piece {
             color: Color::Red,
-            shape: vec![vec![1, 1, 0],
-                        vec![0, 1, 1],
-                        vec![0, 0, 0]]
+            shape: vec![vec![1, 1, 0], vec![0, 1, 1], vec![0, 0, 0]],
         }
     }
 
     pub fn new_i() -> Piece {
-        Piece{
+        Piece {
             color: Color::Cyan,
-            shape: vec![vec![0, 0, 0, 0],
-                        vec![1, 1, 1, 1],
-                        vec![0, 0, 0, 0],
-                        vec![0, 0, 0, 0]]
+            shape: vec![
+                vec![0, 0, 0, 0],
+                vec![1, 1, 1, 1],
+                vec![0, 0, 0, 0],
+                vec![0, 0, 0, 0],
+            ],
         }
     }
 
     fn rotate(&mut self, direction: Direction) {
         let size = self.shape.len();
 
-        for row in 0..size/2 {
+        for row in 0..size / 2 {
             for col in row..(size - row - 1) {
                 let t = self.shape[row][col];
 
                 match direction {
                     Direction::Left => {
                         self.shape[row][col] = self.shape[col][size - row - 1];
-                        self.shape[col][size - row - 1] = self.shape[size - row - 1][size - col - 1];
-                        self.shape[size - row - 1][size - col - 1] = self.shape[size - col - 1][row];
+                        self.shape[col][size - row - 1] =
+                            self.shape[size - row - 1][size - col - 1];
+                        self.shape[size - row - 1][size - col - 1] =
+                            self.shape[size - col - 1][row];
                         self.shape[size - col - 1][row] = t;
-                    },
+                    }
                     Direction::Right => {
                         self.shape[row][col] = self.shape[size - col - 1][row];
-                        self.shape[size - col - 1][row] = self.shape[size - row - 1][size - col - 1];
-                        self.shape[size - row - 1][size - col - 1] = self.shape[col][size - row - 1];
+                        self.shape[size - col - 1][row] =
+                            self.shape[size - row - 1][size - col - 1];
+                        self.shape[size - row - 1][size - col - 1] =
+                            self.shape[col][size - row - 1];
                         self.shape[col][size - row - 1] = t;
                     }
                 }
@@ -219,7 +218,7 @@ impl Piece {
         }
     }
 
-    fn each_point(&self, callback: &mut FnMut(i32, i32)) {
+    fn each_point(&self, callback: &mut dyn FnMut(i32, i32)) {
         let piece_width = self.shape.len() as i32;
         for row in 0..piece_width {
             for col in 0..piece_width {
@@ -238,14 +237,12 @@ impl Piece {
 /// avoid pathological cases where purely random generation provides the same piece type repeately in a row,
 /// or fails to provide a required piece for a very long time.
 struct PieceBag {
-    pieces: Vec<Piece>
+    pieces: Vec<Piece>,
 }
 
 impl PieceBag {
     fn new() -> PieceBag {
-        let mut p = PieceBag{
-            pieces: Vec::new()
-        };
+        let mut p = PieceBag { pieces: Vec::new() };
         p.fill_bag();
         p
     }
@@ -263,7 +260,7 @@ impl PieceBag {
     fn peek(&self) -> Piece {
         match self.pieces.first() {
             Some(p) => p.clone(),
-            None => panic!("No next piece in piece bag")
+            None => panic!("No next piece in piece bag"),
         }
     }
 
@@ -278,7 +275,7 @@ impl PieceBag {
             Piece::new_t(),
             Piece::new_s(),
             Piece::new_z(),
-            Piece::new_i()
+            Piece::new_i(),
         ];
 
         let mut rng = rand::thread_rng();
@@ -302,12 +299,12 @@ impl Game {
         let piece = piece_bag.pop();
 
         let mut game = Game {
-            board: Board{
-                cells: [[None; BOARD_WIDTH as usize]; BOARD_HEIGHT as usize]
+            board: Board {
+                cells: [[None; BOARD_WIDTH as usize]; BOARD_HEIGHT as usize],
             },
             piece_bag: piece_bag,
             piece: piece,
-            piece_position: Point{ x: 0, y: 0 }
+            piece_position: Point { x: 0, y: 0 },
         };
 
         game.place_new_piece();
@@ -335,16 +332,37 @@ impl Game {
 
         // Render the currently falling piece
         let x = 1 + (2 * self.piece_position.x);
-        self.render_piece(display, &self.piece, Point{ x: x, y: self.piece_position.y });
+        self.render_piece(
+            display,
+            &self.piece,
+            Point {
+                x: x,
+                y: self.piece_position.y,
+            },
+        );
 
         // Render a ghost piece
         let ghost_position = self.find_dropped_position();
-        self.render_piece(display, &self.piece, Point{ x: x, y: ghost_position.y });
+        self.render_piece(
+            display,
+            &self.piece,
+            Point {
+                x: x,
+                y: ghost_position.y,
+            },
+        );
 
         // Render the next piece
         display.set_text("Next piece:", left_margin, 7, Color::Red, Color::Black);
         let next_piece = self.piece_bag.peek();
-        self.render_piece(display, &next_piece, Point{ x: (left_margin as i32) + 2, y: 9 });
+        self.render_piece(
+            display,
+            &next_piece,
+            Point {
+                x: (left_margin as i32) + 2,
+                y: 9,
+            },
+        );
     }
 
     fn render_piece(&self, display: &mut Display, piece: &Piece, origin: Point) {
@@ -361,7 +379,7 @@ impl Game {
     /// Moves the current piece in the specified direction. Returns true if the piece could be moved and
     /// didn't collide.
     fn move_piece(&mut self, x: i32, y: i32) -> bool {
-        let new_position = Point{
+        let new_position = Point {
             x: self.piece_position.x + x,
             y: self.piece_position.y + y,
         };
@@ -390,7 +408,7 @@ impl Game {
     /// Positions the current piece at the top of the board. Returns true if the piece can be placed without
     /// any collisions.
     fn place_new_piece(&mut self) -> bool {
-        let origin = Point{
+        let origin = Point {
             x: ((BOARD_WIDTH - (self.piece.shape.len() as u32)) / 2) as i32,
             y: 0,
         };
@@ -439,18 +457,15 @@ impl Game {
         };
     }
 
-
     fn play(&mut self, display: &mut Display) {
         let (tx_event, rx_event) = mpsc::channel();
 
         // Spawn a thread which sends periodic game ticks to advance the piece
         {
             let tx_event = tx_event.clone();
-            thread::spawn(move || {
-                loop {
-                    thread::sleep(Duration::from_millis(500));
-                    tx_event.send(GameUpdate::Tick).unwrap();
-                };
+            thread::spawn(move || loop {
+                thread::sleep(Duration::from_millis(500));
+                tx_event.send(GameUpdate::Tick).unwrap();
             });
         }
 
@@ -463,7 +478,7 @@ impl Game {
                 loop {
                     match get_input(stdin) {
                         Some(k) => tx_event.send(GameUpdate::KeyPress(k)).unwrap(),
-                        None => ()
+                        None => (),
                     }
                 }
             });
@@ -482,13 +497,17 @@ impl Game {
                         GameUpdate::KeyPress(key) => {
                             match key {
                                 Key::Char('z') | Key::CtrlC => break,
-                                k => { self.keypress(k); }
+                                k => {
+                                    self.keypress(k);
+                                }
                             };
-                        },
-                        GameUpdate::Tick => { self.advance_game(); }
+                        }
+                        GameUpdate::Tick => {
+                            self.advance_game();
+                        }
                     };
-                },
-                Err(err) => panic!(err)
+                }
+                Err(err) => panic!("{}", err),
             }
         }
     }
@@ -511,23 +530,23 @@ fn get_input(stdin: &mut std::io::Stdin) -> Option<Key> {
                 Ok("\x1b") => {
                     let code = &mut [0u8; 2];
                     match stdin.read(code) {
-                        Ok(_) => {
-                            match std::str::from_utf8(code) {
-                                Ok("[A") => Some(Key::Up),
-                                Ok("[B") => Some(Key::Down),
-                                Ok("[C") => Some(Key::Right),
-                                Ok("[D") => Some(Key::Left),
-                                _ => None
-                            }
+                        Ok(_) => match std::str::from_utf8(code) {
+                            Ok("[A") => Some(Key::Up),
+                            Ok("[B") => Some(Key::Down),
+                            Ok("[C") => Some(Key::Right),
+                            Ok("[D") => Some(Key::Left),
+                            _ => None,
                         },
-                        Err(msg) => panic!(format!("could not read from standard in: {}", msg))
+                        Err(msg) => {
+                            panic!("{}", format!("could not read from standard in: {}", msg))
+                        }
                     }
-                },
+                }
                 Ok(n) => Some(Key::Char(n.chars().next().unwrap())),
-                _ => None
+                _ => None,
             }
-        },
-        Err(msg) => panic!(format!("could not read from standard in: {}", msg))
+        }
+        Err(msg) => panic!("{}", format!("could not read from standard in: {}", msg)),
     }
 }
 
