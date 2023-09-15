@@ -1,8 +1,5 @@
 use crate::util::Color;
 use std::io::{self, Write};
-use util::Color;
-
-use crate::util;
 
 const ESC: &'static str = "\x1b";
 
