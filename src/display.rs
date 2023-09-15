@@ -1,3 +1,4 @@
+use crate::util::Color;
 use std::io::{self, Write};
 use util::Color;
 

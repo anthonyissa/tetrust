@@ -537,16 +537,14 @@ fn get_input(stdin: &mut std::io::Stdin) -> Option<Key> {
                             Ok("[D") => Some(Key::Left),
                             _ => None,
                         },
-                        Err(msg) => {
-                            panic!("{}", format!("could not read from standard in: {}", msg))
-                        }
+                        Err(msg) => panic!("could not read from standard in: {}", msg),
                     }
                 }
                 Ok(n) => Some(Key::Char(n.chars().next().unwrap())),
                 _ => None,
             }
         }
-        Err(msg) => panic!("{}", format!("could not read from standard in: {}", msg)),
+        Err(msg) => panic!("could not read from standard in: {}", msg),
     }
 }
 
