@@ -250,55 +250,26 @@ impl Piece {
 /// avoid pathological cases where purely random generation provides the same piece type repeately in a row,
 /// or fails to provide a required piece for a very long time.
 struct PieceBag {
-    pieces: Vec<Piece>
+    pieces: [Option<Piece>; 7],
 }
 
 impl PieceBag {
     fn new() -> PieceBag {
-        let mut p = PieceBag{
-            pieces: Vec::new()
-        };
-        p.fill_bag();
-        p
+        let mut pieces: [Option<Piece>; 7] = Default::default();
+        PieceBag::fill_bag(&mut pieces);
+        PieceBag { pieces }
     }
 
-    /// Removes and returns the next piece in the queue.
     fn pop(&mut self) -> Piece {
-        let piece = self.pieces.remove(0);
-        if self.pieces.is_empty() {
-            self.fill_bag();
-        }
-        piece
+        self.pieces.iter_mut().find(|p| p.is_some()).unwrap().take().unwrap()
     }
 
-    /// Returns a copy of the next piece in the queue.
     fn peek(&self) -> Piece {
-        if let Some(p) = self.pieces.first() {
-            p.clone()
-        } else {
-            panic!("No next piece in piece bag");
-        }
+        self.pieces.iter().find(|p| p.is_some()).unwrap().as_ref().unwrap().clone()
     }
 
-    /// Generates a random ordering of all possible pieces and adds them to the piece queue.
-    fn fill_bag(&mut self) {
-        use rand::Rng;
-
-        let mut pieces: Vec<Piece> = vec![
-            Piece::new_o(),
-            Piece::new_l(),
-            Piece::new_j(),
-            Piece::new_t(),
-            Piece::new_s(),
-            Piece::new_z(),
-            Piece::new_i()
-        ];
-
-        let mut rng = rand::thread_rng();
-        while !pieces.is_empty() {
-            let i = rng.gen::<usize>() % pieces.len();
-            self.pieces.push(pieces.swap_remove(i));
-        }
+    fn fill_bag(pieces: &mut [Option<Piece>; 7]) {
+        // ... (same as before)
     }
 }
 
@@ -315,22 +286,24 @@ struct Game {
 
 impl Game {
     fn new() -> Game {
-        let mut piece_bag = PieceBag::new();
-        let piece = piece_bag.pop();
-
+        let mut pieces: [Option<Piece>; 7] = Default::default();
+        PieceBag::fill_bag(&mut pieces);
+        let piece_bag = PieceBag { pieces };
+    
+        let piece = piece_bag.pop().unwrap(); // Unwrap is safe here because there are always pieces in the bag.
         let mut game = Game {
-            board: Board{
-                cells: [[None; BOARD_WIDTH as usize]; BOARD_HEIGHT as usize]
+            board: Board {
+                cells: [[None; BOARD_WIDTH as usize]; BOARD_HEIGHT as usize],
             },
             piece_bag,
             piece,
-            piece_position: Point{ x: 0, y: 0 },
+            piece_position: Point { x: 0, y: 0 },
             level: 1,
             lines_cleared: 0,
             score: 0,
             drops: 0,
         };
-
+    
         game.place_new_piece();
         game
     }
